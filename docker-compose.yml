@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 services:
   mongodb:
     image: mongo
@@ -7,10 +7,42 @@ services:
     volumes:
       - "mongodata:/d/mongo/data/db"
     networks:
-      - network1
-
+      my_compose_network:
+        ipv4_address: 172.88.88.2
+  golang_rest:
+    image: golang-to-mongo-rest:latest
+    container_name: golang_rest
+    ports:
+      - "9090:9090"
+    networks:
+      my_compose_network:
+        ipv4_address: 172.88.88.3
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      my_compose_network:
+        ipv4_address: 172.88.88.4
+  kafka:
+    image: wurstmeister/kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    networks:
+      my_compose_network:
+        ipv4_address: 172.88.88.5
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 172.88.88.5
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
 volumes:
    mongodata:
 
 networks:
-   network1:
+  my_compose_network:
+    name: my_compose_network
+    ipam:
+      config:
+        - subnet: 172.88.88.0/16
+      

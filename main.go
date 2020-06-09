@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	hosts      = "172.19.0.2:27017"
+	hosts      = "172.88.88.2:27017"
 	database   = "db"
 	username   = ""
 	password   = ""

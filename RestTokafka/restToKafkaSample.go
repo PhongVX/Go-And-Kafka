@@ -7,10 +7,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/gorilla/mux"
-	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type Job struct {
@@ -20,45 +18,38 @@ type Job struct {
 	Salary      string `json:"salary"`
 }
 
-type MongoStore struct {
-	session *mgo.Session
-}
+// type MongoStore struct {
+// 	session *mgo.Session
+// }
 
-var mongoStore = MongoStore{}
+// var mongoStore = MongoStore{}
 
 func main() {
-
-	//Create MongoDB session
-	session := initialiseMongo()
-	mongoStore.session = session
-
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/jobs", jobsGetHandler).Methods("GET")
+	// router.HandleFunc("/jobs", jobsGetHandler).Methods("GET")
 	router.HandleFunc("/jobs", jobsPostHandler).Methods("POST")
-
-	log.Fatal(http.ListenAndServe(":9090", router))
-
+	log.Fatal(http.ListenAndServe(":9990", router))
 }
 
-func jobsGetHandler(w http.ResponseWriter, r *http.Request) {
+// func jobsGetHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+// 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	col := mongoStore.session.DB(database).C(collection)
+// 	col := mongoStore.session.DB(database).C(collection)
 
-	results := []Job{}
-	col.Find(bson.M{"title": bson.RegEx{"", ""}}).All(&results)
-	jsonString, err := json.Marshal(results)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Fprint(w, string(jsonString))
+// 	results := []Job{}
+// 	col.Find(bson.M{"title": bson.RegEx{"", ""}}).All(&results)
+// 	jsonString, err := json.Marshal(results)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	fmt.Fprint(w, string(jsonString))
 
-}
+// }
 
 func jobsPostHandler(w http.ResponseWriter, r *http.Request) {
 
-	col := mongoStore.session.DB(database).C(collection)
+	// col := mongoStore.session.DB(database).C(collection)
 
 	//Retrieve body from http request
 	b, err := ioutil.ReadAll(r.Body)
@@ -107,7 +98,7 @@ func saveJobToKafka(job Job) {
 	jobString := string(jsonString)
 	fmt.Print(jobString)
 
-	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "localhost:9092"})
+	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "172.88.88.5:9092"})
 	if err != nil {
 		panic(err)
 	}

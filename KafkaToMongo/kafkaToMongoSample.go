@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	hosts      = "172.19.0.2:27017"
+	hosts      = "172.88.88.2:27017"
 	database   = "db"
 	username   = ""
 	password   = ""
@@ -50,7 +50,7 @@ func receiveFromKafka() {
 
 	fmt.Println("Start receiving from Kafka")
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
+		"bootstrap.servers": "localhost:2181",
 		"group.id":          "group-id-1",
 		"auto.offset.reset": "earliest",
 	})
