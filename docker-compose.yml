@@ -9,21 +9,35 @@ services:
     networks:
       my_compose_network:
         ipv4_address: 172.88.88.2
-  golang_rest:
-    image: golang-to-mongo-rest:latest
-    container_name: golang_rest
+  rest_to_kafka:
+    image: rest-to-kafka:latest
+    depends_on:
+      - kafka
+    container_name: rest-to-kafka
     ports:
-      - "9090:9090"
+      - "9990:9990"
     networks:
       my_compose_network:
         ipv4_address: 172.88.88.3
-  zookeeper:
-    image: wurstmeister/zookeeper
-    ports:
-      - "2181:2181"
+    environment:
+      KAFKA_HOST: 172.88.88.5
+      KAFKA_PORT: 9092
+      KAFKA_TOPIC: demo
+      PORT: :9990
+  kafka_to_mongo:
+    image: kafka-to-mongo:latest
+    container_name: kafka-to-mongo
     networks:
       my_compose_network:
-        ipv4_address: 172.88.88.4
+        ipv4_address: 172.88.88.6
+    environment:
+      KAFKA_HOST_PORT: 172.88.88.5:9092
+      KAFKA_TOPIC: demo
+      MONGODB_HOST_PORT: 172.88.88.2:27017
+      DATABASE: "db"
+      DB_USER_NAME: ""
+      DB_PASSWORD: ""
+      COLLECTION: "jobs"
   kafka:
     image: wurstmeister/kafka
     depends_on:
@@ -36,6 +50,13 @@ services:
     environment:
       KAFKA_ADVERTISED_HOST_NAME: 172.88.88.5
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      my_compose_network:
+        ipv4_address: 172.88.88.4
 volumes:
    mongodata:
 
